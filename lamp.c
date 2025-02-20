@@ -21,9 +21,30 @@ void manage_service(const char *service, const char *action) {
   }
 }
 
+void editConfigFile() {
+  char command[256];
+  printf("Choose the config file you want to edit: \n");
+  printf("1. Httpd\n2. MariaDB\n");
+  int choice;
+  scanf("%d", &choice);
+  switch (choice) {
+  case 1:
+    snprintf(command, sizeof(command), "nano /etc/httpd/conf/httpd.conf");
+    system(command);
+    break;
+  case 2:
+    snprintf(command, sizeof(command), "nano /etc/my.cnf");
+    system(command);
+    break;
+  default:
+    printf("Invalid choice\n");
+    break;
+  }
+}
+
 int main(int argc, char *argv[]) {
   if (argc != 2) {
-    printf("Usage: %s <start|stop|restart>\n", argv[0]);
+    printf("Usage: %s <start|stop|restart|status>\n", argv[0]);
     return 1;
   }
 
@@ -41,13 +62,24 @@ int main(int argc, char *argv[]) {
     if (is_service_running("mariadb"))
       manage_service("mariadb", "stop");
     printf("Httpd and MariaDB were stopped\n");
+  } else if (strcmp(action, "status") == 0) {
+    if (is_service_running("httpd"))
+      printf("Httpd is running\n");
+    else
+      printf("Httpd is not running\n");
+    if (is_service_running("mariadb"))
+      printf("MariaDB is running\n");
+    else
+      printf("MariaDB is not running\n");
   } else if (strcmp(action, "restart") == 0) {
     manage_service("httpd", "restart");
     manage_service("mariadb", "restart");
     printf("Httpd and MariaDB were restarted\n");
+  } else if (strcmp(action, "config") == 0) {
+    editConfigFile();
   } else {
     printf("Invalid action: %s\n", action);
-    printf("Usage: %s <start|stop|restart>\n", argv[0]);
+    printf("Usage: %s <start|stop|restart|status>\n", argv[0]);
     return 1;
   }
 
